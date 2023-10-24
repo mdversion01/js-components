@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Datepicker Component</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+      integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* Using Bootstrap 4.6 as main CSS framework */
+
+      .example {
+        border: 1px solid #dee2e6;
+        margin: 1rem;
+        min-width: 272px;
+        padding: 1rem;
+        position: relative;
+      }
+
+      .dp-calendar {
+        width: 270px;
+      }
+      .calendar {
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      .calendar-inner {
+        min-width: 250px;
+      }
+
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+      }
+
+      .calendar-grid-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+        margin-top: 10px;
+        border-bottom: 1px solid #dee2e6 !important;
+      }
+
+      .calendar-grid-day {
+        text-align: center;
+        padding: 0 5px;
+        border-bottom: 1px solid #ccc;
+      }
+
+      .calendar-grid-item {
+        text-align: center;
+        cursor: pointer;
+      }
+
+      .calendar-grid-item:focus-visible {
+        outline: none;
+      }
+
+      .previous-month-day,
+      .next-month-day {
+        color: #ccc;
+      }
+
+      .next-month-day .active,
+      .previous-month-day .active {
+        color: #fff !important;
+        font-weight: bold;
+      }
+
+      .btn.focus,
+      .btn:focus,
+      .form-control.focus {
+        outline: none !important;
+        box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25) !important;
+      }
+
+      .btn-outline-light.focus,
+      .btn-outline-light:focus {
+        outline: none !important;
+        background-color: #e2e6ea !important;
+        box-shadow: 0 0 0 0.2rem rgba(224, 224, 224, 0.2) !important;
+      }
+
+      .current-day {
+        color: #007bff !important;
+      }
+
+      .current-day.active {
+        color: #fff !important;
+      }
+
+      .current-day.focus,
+      .current-day:focus {
+        outline: none !important;
+        background-color: transparent !important;
+        box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25) !important;
+      }
+
+      .current-day.active.focus,
+      .current-day.active:focus {
+        outline: none !important;
+        background-color: #0062cc !important;
+        box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25) !important;
+      }
+
+      output {
+        padding: 0.25rem;
+        font-size: 80%;
+        display: inline-block;
+      }
+
+      .btn {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+        line-height: 1;
+        margin: 3px auto;
+        padding: 9px 0;
+      }
+      .rounded-circle {
+        border-radius: 50% !important;
+      }
+
+      .context {
+        margin: 1rem;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="example">
+      <div class="dp-calendar">
+        <div
+          class="calendar-inner"
+          dir="ltr"
+          lang="en-US"
+          role="group"
+          aria-describedby="__CDID__calendar-wrapper"
+        ></div>
+        <header class="datepicker" title="Selected Date">
+          <output
+            aria-live="polite"
+            aria-atomic="true"
+            class="selected-date form-control form-control-sm text-center"
+            for="__CDID__calendar-grid_"
+            id="__CDID"
+            role="status"
+            tabindex="-1"
+            ><bdi>No date selected</bdi>
+            <bdi class="sr-only">(Selected date)</bdi>
+          </output>
+        </header>
+        <div
+          class="calendar-nav d-flex"
+          aria-label="Calendar Navigation"
+          aria-controls="__CDID__calendar-grid_"
+          id="__CDID__calendar-nav_"
+          role="group"
+        >
+          <button
+            aria-label="Previous year"
+            aria-keyshortcuts="Alt+PageDown"
+            class="prev-year btn btn-sm border-0 flex-fill btn-outline-secondary"
+            title="Previous year"
+            type="button"
+            id="__CDID__prev-year"
+          >
+            <i class="fas fa-angle-double-left" aria-hidden="true"></i>
+          </button>
+          <button
+            aria-label="Previous month"
+            aria-keyshortcuts="PageDown"
+            class="prev-month btn btn-sm border-0 flex-fill btn-outline-secondary"
+            title="Previous month"
+            type="button"
+            id="__CDID__prev-month"
+          >
+            <i class="fas fa-angle-left" aria-hidden="true"></i>
+          </button>
+          <button
+            aria-label="Current Day/Month/Year"
+            aria-keyshortcuts="Home"
+            class="current-date btn btn-sm border-0 flex-fill btn-outline-secondary"
+            title="Current Day/Month/Year"
+            type="button"
+            id="__CDID__current-date"
+          >
+            <i class="fas fa-circle" aria-hidden="true"></i>
+            <span class="sr-only">Today</span>
+          </button>
+          <button
+            aria-label="Next month"
+            aria-keyshortcuts="PageUp"
+            class="next-month btn btn-sm border-0 flex-fill btn-outline-secondary"
+            title="Next month"
+            type="button"
+            id="__CDID__next-month"
+          >
+            <i class="fas fa-angle-right" aria-hidden="true"></i>
+          </button>
+          <button
+            title="Next year"
+            type="button"
+            class="next-year btn btn-sm border-0 flex-fill btn-outline-secondary"
+            aria-label="Next year"
+            aria-keyshortcuts="Alt+PageUp"
+            id="__CDID__next-year"
+          >
+            <i class="fas fa-angle-double-right" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div
+          aria-describedby="__CDID__calendar-grid_"
+          aria-labelledby="__CDID__calendar-grid-caption_"
+          aria-roledescription="Calendar"
+          class="calendar form-control h-auto text-center pt-2"
+          id="__CDID__calendar-grid_"
+          role="application"
+          tabindex="0"
+        >
+          <!-- Current Month/Year -->
+          <div
+            aria-live="polite"
+            aria-atomic="true"
+            class="calendar-grid-caption text-center font-weight-bold"
+            id="__CDID__calendar-grid-caption_"
+          ></div>
+          <!-- Calendar Grid Header -->
+          <div aria-hidden="true" class="calendar-grid-weekdays">
+            <small
+              aria-label="Sunday"
+              title="Sunday"
+              class="calendar-grid-day col"
+              >Sun</small
+            >
+            <small
+              aria-label="Monday"
+              title="Monday"
+              class="calendar-grid-day col"
+              >Mon</small
+            >
+            <small
+              aria-label="Tuesday"
+              title="Tuesday"
+              class="calendar-grid-day col"
+              >Tue</small
+            >
+            <small
+              aria-label="Wednesday"
+              title="Wednesday"
+              class="calendar-grid-day col"
+              >Wed</small
+            >
+            <small
+              aria-label="Thursday"
+              title="Thursday"
+              class="calendar-grid-day col"
+              >Thu</small
+            >
+            <small
+              aria-label="Friday"
+              title="Friday"
+              class="calendar-grid-day col"
+              >Fri</small
+            >
+            <small
+              aria-label="Saturday"
+              title="Saturday"
+              class="calendar-grid-day col"
+              >Sat</small
+            >
+          </div>
+          <!-- Calendar Grid Goes Here -->
+          <!-- Add this inside the <div class="calendar"> element -->
+          <div class="calendar-grid" id="__CDID__calendar-grid_days"></div>
+          <footer
+            class="border-top small text-muted text-center bg-light"
+            id="__CDID__calendar-grid_footer"
+          >
+            <div class="small">Use cursor keys to navigate calendar dates</div>
+          </footer>
+        </div>
+      </div>
+    </div>
+
+    <div class="context">
+      <div>Context:</div>
+      <div>selectedYMD: "<span class="selected-date-Ymd"></span>"</div>
+      <div>
+        selectedFormatted: "<span class="selected-formatted-date"></span>"
+      </div>
+      <div>
+        selectedIsoFormatted: "<span class="selected-formatted-iso"></span>"
+      </div>
+      <div>activeYMD: "<span class="active-date-ymd"></span>"</div>
+      <div>
+        activeFormatted: "<span class="active-formatted-date-long"></span>"
+      </div>
+      <div>
+        activeIsoFormatted: "<span class="active-formatted-iso"></span>"
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct"
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      // Function to get the first day of the month
+      function getFirstDayOfMonth(year, month) {
+        return new Date(year, month, 1).getDay();
+      }
+
+      // Define variables to store the selected date, month, and year
+      let selectedDate = null;
+      let selectedMonth = null;
+      let selectedYear = null;
+      let previousSelectedDayElement = null; // Define it here to use it later
+      let currentSelectedDate = new Date(); // Updated initialization
+      let shouldClearSelectedDate = false; // Initialize a flag
+      // Global variable to track calendar focus
+      let isCalendarFocused = false;
+
+      /**
+       * Function to format a date as a string
+       * @param {number} year1b - one based/The year.
+       * @param {number} month1b - one based/The month (1-12).
+       * @param {number} day - The day of the month (1-31).
+       * @returns {string} The formatted date string or "Invalid Date" if input is not valid.
+       */
+      function formatDate(year1b, month1b, day) {
+        if (!isNaN(year1b) && !isNaN(month1b) && !isNaN(day)) {
+          const options = {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          };
+          const selectedDate = new Date(year1b, month1b - 1, day);
+
+          return selectedDate.toLocaleDateString(undefined, options);
+        }
+        return "Invalid Date";
+      }
+
+      /**
+       * Function to format a date for the aria-label attribute
+       * @param {Date} date - The date to format.
+       * @param {boolean} isCurrentDay - Indicates if the date is the current day.
+       * @returns {string} The formatted date string with optional " (Today)" suffix.
+       */
+      function formatDateForAriaLabel(date, isCurrentDay = false) {
+        const options = {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        };
+        const formattedDate = new Date(date);
+        const formattedDateString = formattedDate.toLocaleDateString(
+          "en-US",
+          options
+        );
+        return isCurrentDay
+          ? formattedDateString + " (Today)"
+          : formattedDateString;
+      }
+
+      function formatDateYmd(date) {
+        date = new Date(date);
+        year = date.getFullYear();
+        month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+        day = String(date.getDate()).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+      }
+
+      function formatDateLong(date) {
+        const options = {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        };
+        return date.toLocaleDateString(undefined, options);
+      }
+
+      function formatActiveDateLong(dateString) {
+        const options = {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        };
+        const date = new Date(dateString);
+        date.setDate(date.getDate() + 1); // Add 1 day
+        return date.toLocaleDateString("en-US", options);
+      }
+
+      function formatISODate(date) {
+        if (!isNaN(date)) {
+          return date.toISOString();
+        } else {
+          return ""; // or any other value or message indicating the date is invalid
+        }
+      }
+
+      function formatToActiveISODate(dateString) {
+        const date = new Date(dateString);
+        return date.toISOString();
+      }
+
+      /**
+       * Function to set the active state based on the selected date
+       */
+      function setActiveState() {
+        const activeSpan = document.querySelector(".active");
+        if (activeSpan) {
+          activeSpan.classList.remove("active", "btn-primary", "focus");
+          activeSpan.classList.add("btn-outline-light", "text-dark");
+        }
+
+        if (selectedDate) {
+          const selectedDateElement = document.getElementById(
+            `__CDID__cell-${selectedDate.getFullYear()}-${(
+              selectedDate.getMonth() + 1
+            )
+              .toString()
+              .padStart(2, "0")}-${selectedDate
+              .getDate()
+              .toString()
+              .padStart(2, "0")}`
+          );
+          if (selectedDateElement) {
+            const selectedSpan = selectedDateElement.querySelector("span");
+            selectedSpan.classList.add("active", "btn-primary", "focus");
+            selectedSpan.classList.remove("btn-outline-light", "text-dark");
+          }
+        }
+      }
+
+      /**
+       * Function to render the calendar for a given month and year
+       * @param {number} month0b - The month (0-11).
+       * @param {number} year - The year.
+       */
+      function renderCalendar(month0b, year) {
+        const calendarGrid = document.querySelector(".calendar-grid");
+        calendarGrid.innerHTML = ""; // Clear previous content
+
+        // Calculate the last days of the previous month
+        const previousMonthLastDate = new Date(year, month0b, 0).getDate(); // Calculate the last day of the previous month
+        const firstDay = getFirstDayOfMonth(year, month0b);
+        const daysInMonth = new Date(year, month0b + 1, 0).getDate();
+
+        // Calculate the day of the week for the 1st day of the month
+        const firstDayOfWeek = firstDay === 0 ? 0 : firstDay; // Adjust for Sunday being 0
+
+        let date = 1;
+
+        // Calculate the number of weeks to render (at least 4)
+        const totalWeeks = Math.ceil((firstDayOfWeek + daysInMonth) / 7);
+
+        // Update the data-month attribute with the current month and year ('YYYY-MM')
+        updateDataMonth(year, month0b);
+
+        for (let i = 0; i < totalWeeks; i++) {
+          for (let j = 0; j < 7; j++) {
+            const dayItem = document.createElement("div");
+            dayItem.classList.add("calendar-grid-item");
+
+            // Add the role="button" attribute
+            dayItem.setAttribute("role", "button");
+
+            // Add tabindex="0" to make the date cells focusable
+            dayItem.setAttribute("tabindex", "0");
+
+            // Calculate the date for the current cell
+            const currentDate = new Date(year, month0b, date);
+
+            // Assuming you have year, month, and date defined earlier
+            const today = new Date(); // Get the current date
+
+            // Set data-month, data-year, and data-day attributes
+            dayItem.dataset.month = currentDate.getMonth() + 1;
+            dayItem.dataset.year = currentDate.getFullYear();
+            dayItem.dataset.day = currentDate.getDate();
+
+            // Combine year, month, and day into data-date attribute
+            const dataDate = `${year}-${(month0b + 1)
+              .toString()
+              .padStart(2, "0")}-${date.toString().padStart(2, "0")}`;
+            dayItem.dataset.date = dataDate;
+
+            // Add an ID to each div with the format __CDID__cell-YYYY-MM-DD
+            dayItem.id = `__CDID__cell-${dataDate}`;
+
+            const isCurrentDay =
+              today.getDate() === date &&
+              today.getMonth() === month0b &&
+              today.getFullYear() === year;
+
+            const isSelectedDay =
+              selectedDate &&
+              selectedDate.getDate() === date &&
+              selectedDate.getMonth() === month0b &&
+              selectedDate.getFullYear() === year;
+
+            const dayNumberSpan = document.createElement("span");
+            dayNumberSpan.classList.add(
+              "btn",
+              "btn-outline-light",
+              "border-0",
+              "rounded-circle",
+              "text-nowrap",
+              "text-dark",
+              "font-weight-bold"
+            );
+
+            if (i === 0 && j < firstDayOfWeek && firstDayOfWeek > 0) {
+              // Display the last days of the previous month if the first day of the current month is not Sunday
+              const previousMonthDay =
+                previousMonthLastDate - firstDayOfWeek + j + 1;
+              dayNumberSpan.textContent = previousMonthDay;
+              dayItem.classList.add("previous-month-day");
+              dayNumberSpan.classList.add(
+                "btn",
+                "border-0",
+                "rounded-circle",
+                "text-nowrap",
+                "btn-outline-light",
+                "text-muted"
+              );
+              dayNumberSpan.classList.remove("text-dark", "font-weight-bold");
+
+              // Calculate the values for the previous month
+              const previousMonth = month0b === 0 ? 11 : month0b - 1;
+              const previousYear = month0b === 0 ? year - 1 : year;
+
+              // Set data attributes to indicate it's from the previous month
+              dayItem.dataset.month = month0b === 0 ? 12 : month0b;
+              dayItem.dataset.year = previousYear;
+              dayItem.dataset.day = previousMonthDay;
+
+              // Combine year, month, and day into data-date attribute for previous-month-days
+              const previousMonthDataDate = `${
+                dayItem.dataset.year
+              }-${dayItem.dataset.month
+                .toString()
+                .padStart(2, "0")}-${dayItem.dataset.day
+                .toString()
+                .padStart(2, "0")}`;
+              dayItem.dataset.date = previousMonthDataDate;
+
+              // Append data-date to the id attribute
+              dayItem.id = `__CDID__cell-${previousMonthDataDate}`;
+
+              // Format the aria-label for previous-month-days
+              const options = {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              };
+              const formattedDate = new Date(
+                dayItem.dataset.year,
+                dayItem.dataset.month - 1,
+                dayItem.dataset.day
+              ).toLocaleDateString("en-US", options);
+              dayItem.setAttribute("aria-label", formattedDate);
+            } else if (date <= daysInMonth) {
+              // Fill in days of the current month
+              dayNumberSpan.textContent = date;
+              dayItem.dataset.month = month0b + 1;
+              dayItem.dataset.year = year;
+              dayItem.dataset.day = date;
+
+              const options = {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              };
+              const formattedDate = currentDate.toLocaleDateString(
+                "en-US",
+                options
+              );
+
+              if (isCurrentDay) {
+                dayNumberSpan.classList.add("current-day");
+                dayItem.setAttribute(
+                  "aria-label",
+                  formatDateForAriaLabel(formattedDate) + " (Today)"
+                );
+              } else {
+                dayItem.setAttribute("aria-label", formattedDate);
+              }
+
+              if (isSelectedDay) {
+                // Check if the current day is the selected day
+                dayNumberSpan.classList.add("active", "btn-primary", "focus");
+                dayNumberSpan.classList.remove(
+                  "btn-outline-light",
+                  "text-dark"
+                );
+
+                // Append "(Selected)" to the aria-label
+                const existingAriaLabel = dayItem.getAttribute("aria-label");
+                dayItem.setAttribute(
+                  "aria-label",
+                  existingAriaLabel + " (Selected)"
+                );
+
+                // Update the selected date display with the formatted date
+                const formattedSelectedDate = formatDate(
+                  year,
+                  month0b + 1,
+                  date
+                );
+                updateSelectedDateDisplay(formattedSelectedDate);
+                updateActiveDateElements();
+              }
+
+              date++;
+            } else {
+              // Display the days of the next month on the last week
+              const nextMonthDay = date - daysInMonth;
+              dayNumberSpan.textContent = nextMonthDay;
+              dayItem.classList.add("next-month-day");
+              dayNumberSpan.classList.add(
+                "btn",
+                "border-0",
+                "rounded-circle",
+                "text-nowrap",
+                "btn-outline-light",
+                "text-muted"
+              );
+              dayNumberSpan.classList.remove("text-dark", "font-weight-bold");
+
+              // Set data attributes to indicate it's from the next month
+              dayItem.dataset.month = (month0b === 11 ? 0 : month0b + 1) + 1;
+              dayItem.dataset.year = month0b === 11 ? year + 1 : year;
+              dayItem.dataset.day = nextMonthDay;
+
+              // Combine year, month, and day into data-date attribute for next-month-days
+              const nextMonthDataDate = `${
+                dayItem.dataset.year
+              }-${dayItem.dataset.month
+                .toString()
+                .padStart(2, "0")}-${dayItem.dataset.day
+                .toString()
+                .padStart(2, "0")}`;
+              dayItem.dataset.date = nextMonthDataDate;
+
+              // Format the aria-label for next-month-days
+              const options = {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              };
+              const formattedDate = new Date(
+                dayItem.dataset.year,
+                dayItem.dataset.month - 1,
+                dayItem.dataset.day
+              ).toLocaleDateString("en-US", options);
+              dayItem.setAttribute("aria-label", formattedDate);
+
+              // Append data-date to the id attribute
+              dayItem.id = `__CDID__cell-${nextMonthDataDate}`;
+
+              date++;
+            }
+
+            dayItem.appendChild(dayNumberSpan);
+
+            dayNumberSpan.addEventListener("click", handleDayClick);
+            dayNumberSpan.addEventListener("keydown", handleEnterKeyPress);
+
+            calendarGrid.appendChild(dayItem);
+
+            const formattedMonthYear = new Intl.DateTimeFormat("en-US", {
+              year: "numeric",
+              month: "long",
+            }).format(new Date(year, month0b, 1));
+            document.querySelector(
+              "#__CDID__calendar-grid-caption_"
+            ).textContent = formattedMonthYear;
+
+            // Add this part to remove active state from any other day
+            const activeSpan = document.querySelector(".active");
+            if (activeSpan) {
+              activeSpan.classList.remove("active", "btn-primary", "focus");
+              activeSpan.classList.add("btn-outline-light", "text-dark");
+            }
+          }
+        }
+
+        // Remove event listeners from all calendar grid items to prevent duplicate listeners
+        const calendarGridItems = document.querySelectorAll(
+          ".calendar-grid-item"
+        );
+        calendarGridItems.forEach((item) => {
+          item.removeEventListener("click", handleDayClick);
+          item.removeEventListener("keydown", handleEnterKeyPress);
+        });
+
+        // Set the active state for the selected date
+        setActiveState();
+
+        // Update the aria-label for the selected date (if selected)
+        if (selectedDate) {
+          // Get the HTML element corresponding to the selected date
+          const selectedDateElement = document.getElementById(
+            `__CDID__cell-${selectedDate.getFullYear()}-${(
+              selectedDate.getMonth() + 1
+            )
+              .toString()
+              .padStart(2, "0")}-${selectedDate
+              .getDate()
+              .toString()
+              .padStart(2, "0")}`
+          );
+
+          if (selectedDateElement) {
+            // Get the existing aria-label for the selected date
+            let existingAriaLabel =
+              selectedDateElement.getAttribute("aria-label");
+
+            // Check if "(Selected)" is not already present in the label
+            if (!existingAriaLabel.endsWith(" (Selected)")) {
+              // Append "(Selected)" to the aria-label
+              existingAriaLabel += " (Selected)";
+            }
+
+            selectedDateElement.setAttribute("aria-label", existingAriaLabel);
+            selectedDateElement.setAttribute("aria-selected", "true");
+            selectedDateElement.setAttribute("aria-current", "date");
+          }
+        }
+
+        // Add this part to remove the "focus" class from the previously "active" span
+        const previouslyActiveSpan = document.querySelector(".active.focus");
+        if (previouslyActiveSpan) {
+          previouslyActiveSpan.classList.remove("focus");
+        }
+      }
+
+      function handleDateNavigation(event, direction) {
+        // Get the current focused element
+        const focusedElement = document.activeElement;
+
+        if (focusedElement.classList.contains("calendar-grid-item")) {
+          // Find the index of the currently focused item in the array of grid items
+          const calendarCells = document.querySelectorAll(
+            ".calendar-grid-item"
+          );
+          const currentIndex =
+            Array.from(calendarCells).indexOf(focusedElement);
+
+          if (currentIndex !== -1) {
+            // Calculate the new index based on the direction (previous or next day)
+            const newIndex =
+              direction === "next" ? currentIndex + 1 : currentIndex - 1;
+
+            // Check if the new index is within the bounds of the array
+            if (newIndex >= 0 && newIndex < calendarCells.length) {
+              // Access the 'date' property of the dataset of the next (or previous) element
+              const targetDate = calendarCells[newIndex].dataset.date;
+              updateActiveDateElements(targetDate);
+            }
+          }
+        }
+      }
+
+      // Get references to the calendar-nav and calendar-grid elements
+      const calendarNav = document.getElementById("__CDID__calendar-nav_");
+      const calendarGrid = document.getElementById(
+        "__CDID__calendar-grid_days"
+      );
+
+      // Add an event listener to the calendar-nav for the ArrowDown key
+      calendarNav.addEventListener("keydown", function (event) {
+        if (event.key === "ArrowDown") {
+          // Focus on the first day element within the calendar-grid
+          const firstDayElement = calendarGrid.querySelector(
+            ".calendar-grid-item"
+          );
+          if (firstDayElement) {
+            firstDayElement.focus();
+          }
+        }
+      });
+
+      // Define calendarCells in a higher scope
+      let calendarCells = document.querySelectorAll(".calendar-grid-item");
+      let currentFocus = null; // Initialize as null
+      let currentDay = new Date().getDate();
+
+      // JavaScript code for keyboard navigation
+      document.addEventListener("keydown", function (event) {
+        const calendarGrid = document.querySelector(".calendar-grid");
+        currentFocus = document.activeElement;
+
+        const calendarCells = calendarGrid.querySelectorAll(
+          ".calendar-grid-item"
+        );
+
+        if (event.key.startsWith("Arrow")) {
+          event.preventDefault();
+          // Find the index of the currently focused calendar cell
+          let index = Array.from(calendarCells).indexOf(currentFocus);
+
+          if (index !== -1) {
+            let newIndex = index;
+
+            if (event.key === "ArrowUp") {
+              // Move to the cell above
+              newIndex = Math.max(index - 7, 0);
+              if (newIndex < index) {
+                if (currentMonth === 0 && index % 7 === 0) {
+                  // Navigate to the previous year when at the first day of January
+                  currentYear--;
+                  currentMonth = 11;
+                  renderCalendar(currentMonth, currentYear);
+                  setFocusOnLastDayOfPreviousMonth();
+                  return;
+                }
+                // Skip over "previous-month-day" cells
+                while (
+                  calendarCells[newIndex].classList.contains(
+                    "previous-month-day"
+                  )
+                ) {
+                  newIndex = Math.max(newIndex - 1, 0);
+                  if (newIndex < index) {
+                    // Navigate to the last day of the previous month when there are no "previous-month-day" cells
+                    navigateToPreviousMonth();
+                    return;
+                  }
+                }
+              }
+              handleDateNavigation(event, "previous");
+            } else if (event.key === "ArrowDown") {
+              // Move to the cell below
+              newIndex = Math.min(index + 7, calendarCells.length - 1);
+              if (newIndex > index) {
+                if (currentMonth === 11 && (index + 1) % 7 === 0) {
+                  // Navigate to the next year when at the last day of December
+                  currentYear++;
+                  currentMonth = 0;
+                  renderCalendar(currentMonth, currentYear);
+                  setFocusOnFirstDayOfNextMonth();
+                  return;
+                }
+                // Skip over "next-month-day" cells
+                while (
+                  calendarCells[newIndex].classList.contains("next-month-day")
+                ) {
+                  newIndex = Math.min(newIndex + 1, calendarCells.length - 1);
+                  if (newIndex > index) {
+                    // Navigate to the first day of the next month when there are no "next-month-day" cells
+                    navigateToNextMonth();
+                    return;
+                  }
+                }
+              }
+              handleDateNavigation(event, "next");
+            } else if (event.key === "ArrowLeft") {
+              // Move to the cell on the left
+              newIndex = Math.max(index - 1, 0);
+              if (newIndex < index) {
+                if (currentDay === 1) {
+                  if (currentMonth === 0 && index % 7 === 0) {
+                    // Navigate to the previous year when at the first day of January
+                    currentYear--;
+                    currentMonth = 11;
+                    renderCalendar(currentMonth, currentYear);
+                    setFocusOnLastDayOfPreviousMonth();
+                    return;
+                  }
+                }
+                // Skip over "previous-month-day" cells
+                while (
+                  calendarCells[newIndex].classList.contains(
+                    "previous-month-day"
+                  )
+                ) {
+                  newIndex = Math.max(newIndex - 1, 0);
+                  if (newIndex < index) {
+                    // Navigate to the last day of the previous month when there are no "previous-month-day" cells
+                    navigateToPreviousMonth();
+                    return;
+                  }
+                }
+              }
+              handleDateNavigation(event, "previous");
+            } else if (event.key === "ArrowRight") {
+              // Move to the cell on the right
+              newIndex = Math.min(index + 1, calendarCells.length - 1);
+              if (newIndex > index) {
+                if (currentMonth === 12) {
+                  // Navigate to the next year when at the last day of December
+                  currentYear++;
+                  currentMonth = 0;
+                  renderCalendar(currentMonth, currentYear);
+                  setFocusOnFirstDayOfNextMonth();
+                  return;
+                }
+                // Skip over "next-month-day" cells
+                while (
+                  calendarCells[newIndex].classList.contains("next-month-day")
+                ) {
+                  newIndex = Math.min(newIndex + 1, calendarCells.length - 1);
+                  if (newIndex > index) {
+                    // Navigate to the first day of the next month when there are no "next-month-day" cells
+                    navigateToNextMonth();
+                    return;
+                  }
+                }
+              }
+              handleDateNavigation(event, "next");
+            }
+
+            // Check if newIndex is the same as the original index, meaning no navigation occurred
+            if (newIndex === index) {
+              // Check for special cases to navigate to the previous month or the next month
+              if (index === 0) {
+                navigateToPreviousMonth();
+              } else if (index === 34) {
+                navigateToNextMonth();
+              }
+            }
+
+            // Remove 'focus' class from the previously focused element's span
+            const previousFocusSpan = currentFocus.querySelector("span");
+            if (previousFocusSpan) {
+              previousFocusSpan.classList.remove("focus");
+            }
+
+            // Set focus on the new element
+            calendarCells[newIndex].focus();
+
+            // Add 'focus' class to the new focused element's span
+            const newFocusSpan = calendarCells[newIndex].querySelector("span");
+            if (newFocusSpan) {
+              newFocusSpan.classList.add("focus");
+            }
+
+            setAriaActiveDescendant();
+            updateActiveDateElements();
+          }
+        }
+      });
+
+      function navigateToPreviousMonth() {
+        if (currentMonth === 0) {
+          currentYear--;
+          currentMonth = 11;
+        } else {
+          currentMonth--;
+        }
+        renderCalendar(currentMonth, currentYear);
+        setFocusOnLastDayOfPreviousMonth();
+        setAriaActiveDescendant();
+        updateActiveDateElements();
+      }
+
+      function navigateToNextMonth() {
+        if (currentMonth === 11) {
+          currentYear++;
+          currentMonth = 0;
+        } else {
+          currentMonth++;
+        }
+        renderCalendar(currentMonth, currentYear);
+        setFocusOnFirstDayOfNextMonth();
+        setAriaActiveDescendant();
+        updateActiveDateElements();
+      }
+
+      // Function to find the index of the last day of the previous month
+      function findDayOfMonthIndex() {
+        let newIndex = 0;
+        for (let i = calendarCells.length - 1; i >= 0; i--) {
+          const cell = calendarCells[i];
+          if (
+            !cell.classList.contains("previous-month-day") &&
+            !cell.classList.contains("next-month-day")
+          ) {
+            newIndex = i;
+            break;
+          }
+        }
+        return newIndex;
+      }
+
+      // Find the last day index by calling the function
+      const firstDayIndex = findDayOfMonthIndex();
+
+      // Function to find the index of the last day of the previous month
+      function findLastDayIndex() {
+        let lastDayIndex = -1;
+        for (let i = 0; i < calendarCells.length; i++) {
+          const cell = calendarCells[i];
+          if (
+            !cell.classList.contains("previous-month-day") &&
+            !cell.classList.contains("next-month-day")
+          ) {
+            lastDayIndex = i;
+          }
+        }
+        return lastDayIndex;
+      }
+
+      // Get the last day index
+      const lastDayIndex = findLastDayIndex();
+
+      function setFocusOnFirstDayOfNextMonth() {
+        setFocusOnDay(1);
+      }
+
+      function setFocusOnLastDayOfPreviousMonth() {
+        const lastDayOfCurrentMonth = findLastDayOfCurrentMonth(
+          currentYear,
+          currentMonth
+        );
+
+        // Find all calendar cells that have the last day of the current month
+        const matchingCells = [
+          ...document.querySelectorAll(".calendar-grid-item"),
+        ].filter(
+          (cell) => cell.textContent.trim() === lastDayOfCurrentMonth.toString()
+        );
+
+        // Select the last matching cell
+        const lastMatchingCell = matchingCells[matchingCells.length - 1];
+
+        if (lastMatchingCell) {
+          // Remove 'focus' class from the previously focused element's span
+          const previousFocusSpan = document.querySelector(".focus");
+          if (previousFocusSpan) {
+            previousFocusSpan.classList.remove("focus");
+          }
+
+          // Set focus on the new element
+          lastMatchingCell.focus();
+
+          // Add 'focus' class to the new focused element's span
+          const newFocusSpan = lastMatchingCell.querySelector("span");
+          if (newFocusSpan) {
+            newFocusSpan.classList.add("focus");
+          }
+        }
+      }
+
+      function setFocusOnDay(day) {
+        // Find the corresponding cell for the day in the calendar
+        const calendarGrid = document.querySelector(".calendar-grid");
+        const calendarCells = calendarGrid.querySelectorAll(
+          ".calendar-grid-item"
+        );
+        for (const cell of calendarCells) {
+          if (cell.textContent.trim() === day.toString()) {
+            // Remove 'focus' class from the previously focused element's span
+            const previousFocusSpan = document.querySelector(".focus");
+            if (previousFocusSpan) {
+              previousFocusSpan.classList.remove("focus");
+            }
+
+            // Set focus on the new element
+            cell.focus();
+
+            // Add 'focus' class to the new focused element's span
+            const newFocusSpan = cell.querySelector("span");
+            if (newFocusSpan) {
+              newFocusSpan.classList.add("focus");
+            }
+
+            break;
+          }
+        }
+      }
+
+      // Function to set the initial focus when the calendar is loaded
+      function setInitialFocus(month, year) {
+        const calendarGrid = document.querySelector(".calendar-grid");
+        const calendarCells = calendarGrid.querySelectorAll(
+          ".calendar-grid-item"
+        );
+
+        // Determine the current day
+        const today = new Date();
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+        const currentDay = today.getDate();
+
+        // Find the cell corresponding to the current day
+        const currentDayCell = calendarCells.find((cell) => {
+          const cellMonth = parseInt(cell.dataset.month) - 1;
+          const cellYear = parseInt(cell.dataset.year) - 1;
+          const cellDay = parseInt(cell.dataset.day);
+          return (
+            cellMonth === currentMonth &&
+            cellYear === currentYear &&
+            cellDay === currentDay
+          );
+        });
+
+        // If the current day cell is found, set initial focus to it
+        if (currentDayCell) {
+          const span = currentDayCell.querySelector("span");
+          if (span) {
+            span.focus();
+            span.classList.add("focus");
+          }
+        } else {
+          // If current day cell is not found, set initial focus to the first day of the month
+          const firstDayCell = calendarCells.find((cell) => {
+            const cellMonth = parseInt(cell.dataset.month) - 1;
+            const cellYear = parseInt(cell.dataset.year) - 1;
+            return (
+              cellMonth === month &&
+              cellYear === year &&
+              cell.dataset.day === "1"
+            );
+          });
+
+          if (firstDayCell) {
+            const span = firstDayCell.querySelector("span");
+            if (span) {
+              span.focus();
+              span.classList.add("focus");
+            }
+          }
+        }
+      }
+
+      // Event listener for handling day clicks
+      function handleDayClick(event) {
+        event.stopPropagation();
+
+        const clickedSpan = event.target;
+        const dayContainer = event.target.parentElement;
+
+        const isPreviousMonthDay =
+          dayContainer.classList.contains("previous-month-day");
+        const isNextMonthDay =
+          dayContainer.classList.contains("next-month-day");
+
+        const isActive = clickedSpan.classList.contains("active"); // Check if the clicked span is active
+
+        if (!isPreviousMonthDay && !isNextMonthDay) {
+          const allSpans = document.querySelectorAll(
+            ".calendar-grid-item span"
+          );
+          allSpans.forEach((span) => {
+            span.classList.remove("active", "btn-primary", "focus");
+            span.classList.add("btn-outline-light", "text-dark");
+
+            // Remove "(Selected)" from aria-label if it exists
+            const dateElement = document.getElementById(
+              `__CDID__cell-${span.parentElement.dataset.date}`
+            );
+            if (dateElement) {
+              const existingAriaLabel = dateElement.getAttribute("aria-label");
+              if (existingAriaLabel.endsWith(" (Selected)")) {
+                dateElement.setAttribute(
+                  "aria-label",
+                  existingAriaLabel.slice(0, -11) // Remove the "(Selected)" part
+                );
+
+                // Remove aria-selected and aria-current attributes for previously selected cells
+                dateElement.removeAttribute("aria-selected");
+                dateElement.removeAttribute("aria-current");
+              }
+            }
+          });
+
+          if (!isActive) {
+            // Apply the 'active' and 'btn-primary' classes to the clicked span
+            clickedSpan.classList.add("active", "btn-primary", "focus");
+
+            // Append "(Selected)" to the aria-label
+            const selectedDateElement = document.getElementById(
+              `__CDID__cell-${dayContainer.dataset.date}`
+            );
+            if (selectedDateElement) {
+              const existingAriaLabel =
+                selectedDateElement.getAttribute("aria-label");
+              selectedDateElement.setAttribute(
+                "aria-label",
+                existingAriaLabel + " (Selected)"
+              );
+
+              // Set aria-selected="true" and aria-current="date" for the selected cell
+              selectedDateElement.setAttribute("aria-selected", "true");
+              selectedDateElement.setAttribute("aria-current", "date");
+            }
+          }
+
+          // Update selectedMonth and selectedYear based on the clicked date
+          selectedMonth = parseInt(dayContainer.dataset.month);
+          selectedYear = parseInt(dayContainer.dataset.year);
+          const selectedDay = parseInt(clickedSpan.textContent);
+
+          // Store the selected date
+          selectedDate = new Date(selectedYear, selectedMonth - 1, selectedDay);
+
+          // Format the selected date for display
+          const formattedSelectedDate = formatDate(
+            selectedYear,
+            selectedMonth,
+            selectedDay
+          );
+
+          // Update the display of the selected date
+          updateSelectedDateDisplay(formattedSelectedDate);
+          updateSelectedDateElements(formattedSelectedDate);
+          updateActiveDateElements();
+
+          // Update currentSelectedDate to the selected date
+          currentSelectedDate = new Date(
+            selectedYear,
+            selectedMonth - 1,
+            selectedDay
+          );
+
+          // Update the display of the current date
+          const formattedCurrentDate = formatDate(
+            currentSelectedDate.getFullYear(),
+            currentSelectedDate.getMonth() + 1,
+            currentSelectedDate.getDate()
+          );
+          updateCurrentDateDisplay(formattedCurrentDate);
+
+          // Add the 'focus' class to the calendar div
+          calendar.classList.add("focus");
+          isCalendarFocused = true;
+
+          // Update the 'calendar' element's aria-activedescendant attribute
+          const calendarElement = document.querySelector(".calendar");
+          const formattedDate = `${selectedDate.getFullYear()}-${(
+            selectedDate.getMonth() + 1
+          )
+            .toString()
+            .padStart(2, "0")}-${selectedDate
+            .getDate()
+            .toString()
+            .padStart(2, "0")}`;
+          calendar.setAttribute(
+            "aria-activedescendant",
+            `__CDID__${formattedDate}_`
+          );
+        } else {
+          // Handle month navigation based on the clicked date
+          if (isPreviousMonthDay) {
+            // Handle navigation to the previous month
+            currentMonth--;
+            if (currentMonth < 0) {
+              currentMonth = 11;
+              currentYear--;
+            }
+          } else if (isNextMonthDay) {
+            // Handle navigation to the next month
+            currentMonth++;
+            if (currentMonth > 11) {
+              currentMonth = 0;
+              currentYear++;
+            }
+          }
+
+          // Update the selected day to the clicked day
+          selectedMonth = parseInt(dayContainer.dataset.month);
+          selectedYear = parseInt(dayContainer.dataset.year);
+          const selectedDay = parseInt(clickedSpan.textContent);
+          selectedDate = new Date(selectedYear, selectedMonth - 1, selectedDay);
+
+          // Render the calendar for the updated month and year
+          renderCalendar(currentMonth, currentYear);
+
+          // After changing the month and year, update the data-month attribute
+          updateDataMonth(currentYear, currentMonth);
+
+          // Update the 'calendar' element's aria-activedescendant attribute
+          const calendarElement = document.querySelector(".calendar");
+          const formattedDate = `${selectedDate.getFullYear()}-${(
+            selectedDate.getMonth() + 1
+          )
+            .toString()
+            .padStart(2, "0")}-${selectedDate
+            .getDate()
+            .toString()
+            .padStart(2, "0")}`;
+          calendarElement.setAttribute(
+            "aria-activedescendant",
+            `__CDID__${formattedDate}_`
+          );
+
+          // Find the new focus cell
+          const newFocusCell = document.querySelector(
+            ".calendar-grid-item .focus"
+          );
+
+          if (newFocusCell) {
+            // Set focus on the new element
+            newFocusCell.focus();
+            // Update the 'aria-activedescendant' attribute of the calendar div
+
+            document
+              .querySelector(".calendar")
+              .setAttribute("aria-activedescendant", newFocusCell.id);
+          }
+        }
+
+        // Set the active state
+        setActiveState();
+      }
+
+      // Function to update the data-month attribute with the current month and year ('YYYY-MM')
+      function updateDataMonth(year, month0b) {
+        const formattedMonthYear = `${year}-${(month0b + 1)
+          .toString()
+          .padStart(2, "0")}`;
+        const calendarElement = document.querySelector(".calendar");
+        if (calendarElement) {
+          calendarElement.setAttribute("data-month", formattedMonthYear);
+        }
+      }
+
+      // Event listener for Enter key press
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" || event.key === " ") {
+          handleEnterKeyPress(event);
+        }
+
+        if (
+          event.key === "ArrowDown" ||
+          event.key === "ArrowUp" ||
+          event.key === "ArrowLeft" ||
+          event.key === "ArrowRight"
+        ) {
+          // If the user presses the down arrow key, add 'focus' class to the calendar
+          calendar.classList.add("focus");
+          isCalendarFocused = true;
+        }
+      });
+
+      // Function to handle Enter key press
+      function handleEnterKeyPress(event) {
+        event.stopPropagation();
+
+        const focusedSpan = document.querySelector(
+          ".calendar-grid-item span.focus"
+        );
+        if (focusedSpan) {
+          const dayContainer = focusedSpan.parentElement;
+
+          const isPreviousMonthDay =
+            dayContainer.classList.contains("previous-month-day");
+          const isNextMonthDay =
+            dayContainer.classList.contains("next-month-day");
+
+          const isActive = focusedSpan.classList.contains("active");
+
+          if (!isPreviousMonthDay && !isNextMonthDay) {
+            const allSpans = document.querySelectorAll(
+              ".calendar-grid-item span"
+            );
+            allSpans.forEach((span) => {
+              span.classList.remove("active", "btn-primary", "focus");
+              span.classList.add("btn-outline-light", "text-dark");
+
+              const dateElement = document.getElementById(
+                `__CDID__cell-${span.parentElement.dataset.date}`
+              );
+              if (dateElement) {
+                const existingAriaLabel =
+                  dateElement.getAttribute("aria-label");
+                if (existingAriaLabel.endsWith(" (Selected)")) {
+                  dateElement.setAttribute(
+                    "aria-label",
+                    existingAriaLabel.slice(0, -11)
+                  );
+
+                  dateElement.removeAttribute("aria-selected");
+                  dateElement.removeAttribute("aria-current");
+                }
+              }
+            });
+
+            if (!isActive) {
+              focusedSpan.classList.add("active", "btn-primary", "focus");
+
+              const selectedDateElement = document.getElementById(
+                `__CDID__cell-${dayContainer.dataset.date}`
+              );
+              if (selectedDateElement) {
+                const existingAriaLabel =
+                  selectedDateElement.getAttribute("aria-label");
+                selectedDateElement.setAttribute(
+                  "aria-label",
+                  existingAriaLabel + " (Selected)"
+                );
+
+                selectedDateElement.setAttribute("aria-selected", "true");
+                selectedDateElement.setAttribute("aria-current", "date");
+              }
+            }
+
+            selectedMonth = parseInt(dayContainer.dataset.month);
+            selectedYear = parseInt(dayContainer.dataset.year);
+            const selectedDay = parseInt(focusedSpan.textContent);
+            selectedDate = new Date(
+              selectedYear,
+              selectedMonth - 1,
+              selectedDay
+            );
+
+            const formattedSelectedDate = formatDate(
+              selectedYear,
+              selectedMonth,
+              selectedDay
+            );
+            updateSelectedDateDisplay(formattedSelectedDate);
+            updateSelectedDateElements(formattedSelectedDate);
+
+            currentSelectedDate = new Date(
+              selectedYear,
+              selectedMonth - 1,
+              selectedDay
+            );
+
+            const formattedCurrentDate = formatDate(
+              currentSelectedDate.getFullYear(),
+              currentSelectedDate.getMonth() + 1,
+              currentSelectedDate.getDate()
+            );
+            updateCurrentDateDisplay(formattedCurrentDate);
+            updateSelectedDateElements(formattedCurrentDate);
+
+            const calendar = document.querySelector(".calendar");
+            calendar.classList.add("focus");
+          } else {
+            if (isPreviousMonthDay) {
+              currentMonth--;
+              if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+              }
+            } else if (isNextMonthDay) {
+              currentMonth++;
+              if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+              }
+            }
+
+            selectedMonth = parseInt(dayContainer.dataset.month);
+            selectedYear = parseInt(dayContainer.dataset.year);
+            const selectedDay = parseInt(focusedSpan.textContent);
+            selectedDate = new Date(
+              selectedYear,
+              selectedMonth - 1,
+              selectedDay
+            );
+
+            renderCalendar(currentMonth, currentYear);
+          }
+
+          setActiveState();
+        }
+      }
+
+      // Function to update the selected date display
+      function updateSelectedDateDisplay(formattedDate) {
+        const selectedDateDisplay =
+          document.querySelector(".selected-date bdi");
+        selectedDateDisplay.textContent = formattedDate;
+      }
+
+      function updateCurrentDateDisplay(formattedDate) {
+        const currentDateDisplay = document.querySelector(".selected-date bdi");
+        currentDateDisplay.textContent = formattedDate;
+      }
+
+      document.addEventListener("click", function (event) {
+        const calendar = document.querySelector(".calendar");
+        const activeSpan = document.querySelector(".active");
+        const focusedSpans = document.querySelectorAll(
+          "span.focus:not(.active)"
+        );
+
+        // Check if the click event target is outside of the calendar
+        if (!calendar.contains(event.target)) {
+          focusedSpans.forEach(function (span) {
+            span.classList.remove("focus");
+          });
+
+          if (activeSpan) {
+            activeSpan.classList.remove("focus");
+            isCalendarFocused = false;
+          }
+
+          // Remove the 'focus' class from the calendar when clicked outside
+          calendar.classList.remove("focus");
+          isCalendarFocused = false;
+        }
+      });
+
+      // Event listener for the "prev-month" button
+      document.querySelector(".prev-month").addEventListener("click", () => {
+        // Remove the "focus" class from span.active
+        const activeSpan = document.querySelector(".active span");
+        if (activeSpan) {
+          activeSpan.classList.remove("focus");
+        }
+
+        currentMonth--;
+        if (currentMonth < 0) {
+          currentMonth = 11;
+          currentYear--;
+        }
+
+        // Check if a date is selected and the flag is set to true
+        if (selectedDate && shouldClearSelectedDate) {
+          selectedDate = null;
+        }
+
+        shouldClearSelectedDate = false; // Reset the flag
+        renderCalendar(currentMonth, currentYear);
+
+        // Update the data-month attribute after changing the month and year
+        updateDataMonth(currentYear, currentMonth);
+      });
+
+      // Event listener for the "next-month" button
+      document.querySelector(".next-month").addEventListener("click", () => {
+        // Remove the "focus" class from span.active
+        const activeSpan = document.querySelector(".active span");
+        if (activeSpan) {
+          activeSpan.classList.remove("focus");
+        }
+
+        currentMonth++;
+        if (currentMonth > 11) {
+          currentMonth = 0;
+          currentYear++;
+        } else if (currentMonth < 0) {
+          currentMonth = 11;
+          currentYear--;
+        }
+
+        // Check if a date is selected and the flag is set to true
+        if (selectedDate && shouldClearSelectedDate) {
+          selectedDate = null;
+        }
+
+        shouldClearSelectedDate = false; // Reset the flag
+        renderCalendar(currentMonth, currentYear);
+
+        // Update the data-month attribute after changing the month and year
+        updateDataMonth(currentYear, currentMonth);
+      });
+
+      // Event listener for the "previous year" button
+      document.querySelector(".prev-year").addEventListener("click", () => {
+        currentYear--;
+        renderCalendar(currentMonth, currentYear);
+      });
+
+      // Event listener for the "next year" button
+      document.querySelector(".next-year").addEventListener("click", () => {
+        currentYear++;
+        renderCalendar(currentMonth, currentYear);
+      });
+
+      // Event listener for the "current-date" button
+      document.querySelector(".current-date").addEventListener("click", () => {
+        const today = new Date();
+        selectedDate = today;
+        currentMonth = today.getMonth();
+        currentYear = today.getFullYear();
+        currentSelectedDay = today.getDate();
+
+        // Re-render the calendar
+        renderCalendar(currentMonth, currentYear);
+
+        // Update the aria-activedescendant attribute to point to the selected date's cell
+        const formattedDateId = `__CDID__cell-${currentYear}-${(
+          currentMonth + 1
+        )
+          .toString()
+          .padStart(2, "0")}-${currentSelectedDay.toString().padStart(2, "0")}`;
+        const currentSelectedDateElement = document.querySelector(
+          `#${formattedDateId}`
+        );
+        if (currentSelectedDateElement) {
+          document
+            .querySelector(".calendar")
+            .setAttribute("aria-activedescendant", formattedDateId);
+
+          // Set focus on the selected date's cell
+          currentSelectedDateElement.focus();
+        }
+
+        // Clear "Selected" labels from other grid items
+        const gridItems = document.querySelectorAll(".calendar-grid-item");
+        gridItems.forEach((item) => {
+          const span = item.querySelector("span.current-day");
+          if (span && span !== currentSelectedDateElement) {
+            const existingAriaLabel = item.getAttribute("aria-label");
+            if (
+              existingAriaLabel &&
+              existingAriaLabel.endsWith(" (Selected)")
+            ) {
+              item.setAttribute(
+                "aria-label",
+                existingAriaLabel.replace(" (Selected)", "")
+              );
+            }
+          }
+        });
+
+        // Add the "Selected" label to the selected date's grid item
+        if (currentSelectedDateElement) {
+          const existingAriaLabel =
+            currentSelectedDateElement.getAttribute("aria-label");
+          if (existingAriaLabel && !existingAriaLabel.endsWith(" (Selected)")) {
+            currentSelectedDateElement.setAttribute(
+              "aria-label",
+              existingAriaLabel + " (Selected)"
+            );
+          }
+        }
+
+        // Update the selected date display
+        const formattedDate = formatDate(
+          currentYear,
+          currentMonth + 1,
+          currentSelectedDay
+        );
+        updateSelectedDateDisplay(formattedDate);
+        updateSelectedDateElements(formattedDate);
+        updateDateElements();
+      });
+
+      // Select the "calendar form-control" element
+      const calendarFormControl = document.querySelector(
+        ".calendar.form-control"
+      );
+      const calendarGridItems = document.querySelectorAll(
+        ".calendar-grid-item"
+      );
+      const calendar = document.querySelector(".calendar");
+
+      // Add a focus event listener to add the "focus" class
+      calendarFormControl.addEventListener("focus", function () {
+        const currentDaySpan = document.querySelector(".current-day");
+        if (currentDaySpan) {
+          currentDaySpan.classList.add("focus");
+        }
+      });
+
+      // Add a blur event listener to remove the "focus" class
+      calendarFormControl.addEventListener("blur", function () {
+        const currentDaySpan = document.querySelector(".current-day");
+        if (currentDaySpan) {
+          currentDaySpan.classList.remove("focus");
+        }
+      });
+
+      // Add a blur event listener to remove the "focus" class
+      calendarFormControl.addEventListener("blur", function () {
+        if (!isCalendarFocused) {
+          const currentDaySpan = document.querySelector(".current-day");
+          if (currentDaySpan) {
+            currentDaySpan.classList.remove("focus");
+          }
+        }
+      });
+
+      // Initialize the calendar with the current month and year
+      const today = new Date();
+      let currentMonth = today.getMonth();
+      let currentYear = today.getFullYear();
+
+      function findFirstDayOfCurrentMonth(currentYear, currentMonth) {
+        // Create a new Date object set to the current year and month
+        const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+
+        // Get the day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+        const firstDayOfWeek = firstDayOfMonth.getDay();
+
+        return firstDayOfWeek;
+      }
+
+      const firstDayOfWeek = findFirstDayOfCurrentMonth(
+        currentYear,
+        currentMonth
+      );
+
+      function findFirstDayOfNextMonth(currentYear, currentMonth) {
+        let nextMonth = currentMonth + 1;
+        const nextYear = currentYear + Math.floor(nextMonth / 12);
+        nextMonth %= 12;
+        const firstDayOfMonth = new Date(nextYear, nextMonth, 1);
+        const firstDayOfWeek = firstDayOfMonth.getDay();
+        return firstDayOfWeek;
+      }
+
+      function findFirstDayOfPreviousMonth(currentYear, currentMonth) {
+        let previousMonth = currentMonth - 1;
+        const previousYear = currentYear - Math.floor(previousMonth / 12);
+        previousMonth = (previousMonth + 12) % 12;
+        const firstDayOfMonth = new Date(previousYear, previousMonth, 1);
+        const firstDayOfWeek = firstDayOfMonth.getDay();
+        return firstDayOfWeek;
+      }
+
+      // When navigating to the previous month
+      const previousMonthFirstDay = findFirstDayOfPreviousMonth(
+        currentYear,
+        currentMonth
+      );
+
+      // When navigating to the next month
+      const nextMonthFirstDay = findFirstDayOfNextMonth(
+        currentYear,
+        currentMonth
+      );
+
+      function findLastDayOfCurrentMonth(currentYear, currentMonth) {
+        const nextMonth = currentMonth + 1;
+        const nextYear = currentYear + Math.floor(nextMonth / 12);
+        const firstDayOfNextMonth = new Date(nextYear, nextMonth % 12, 1);
+        const lastDayOfCurrentMonth = new Date(firstDayOfNextMonth - 1);
+        return lastDayOfCurrentMonth.getDate();
+      }
+
+      function findLastDayOfPreviousMonth(currentYear, currentMonth) {
+        const previousMonth = currentMonth - 1;
+        const previousYear =
+          currentYear - Math.floor(currentMonth === 0 ? 1 : 0);
+        const firstDayOfCurrentMonth = new Date(currentYear, currentMonth, 1);
+        const lastDayOfPreviousMonth = new Date(firstDayOfCurrentMonth - 1);
+        return lastDayOfPreviousMonth.getDate();
+      }
+
+      const lastDayOfCurrentMonth = findLastDayOfCurrentMonth(
+        currentYear,
+        currentMonth
+      );
+
+      const lastDayOfPreviousMonth = findLastDayOfPreviousMonth(
+        currentYear,
+        currentMonth
+      );
+
+      // Format the current month and year as YYYY-MM
+      const formattedMonthYear = `${currentYear}-${(currentMonth + 1)
+        .toString()
+        .padStart(2, "0")}`;
+
+      function updateDateElements() {
+        // Find the element with the class 'current-day'
+        const currentDayElement = document.querySelector(".current-day");
+
+        if (currentDayElement) {
+          // Check if the parent element has the 'data-date' attribute
+          const parentElement = currentDayElement.parentElement;
+          const dataDate = parentElement.getAttribute("data-date");
+
+          if (dataDate) {
+            // Display the date in the corresponding divs
+            const activeDateYMD = document.querySelector(".active-date-ymd");
+            activeDateYMD.textContent = dataDate;
+
+            const activeLongDate = document.querySelector(
+              ".active-formatted-date-long"
+            );
+            activeLongDate.textContent = formatActiveDateLong(dataDate);
+
+            const activeIsoDate = document.querySelector(
+              ".active-formatted-iso"
+            );
+            activeIsoDate.textContent = formatToActiveISODate(dataDate);
+          }
+        }
+      }
+
+      // Call the function when the DOM is ready
+      document.addEventListener("DOMContentLoaded", function () {
+        // Call the function to update the date elements
+        updateDateElements();
+      });
+
+      // Find the calendar element by its class
+      const calendarElement = document.querySelector(".calendar");
+
+      // Add the data-month attribute to the calendar element
+      calendarElement.setAttribute("data-month", formattedMonthYear);
+      renderCalendar(currentMonth, currentYear);
+      updateSelectedDateDisplay("No date selected");
+
+      // Initialize the data-month attribute
+      updateDataMonth(currentYear, currentMonth); // Add this line
+
+      // Set the initial aria-activedescendant to the current date
+      const formattedToday = `${today.getFullYear()}-${(today.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}-${today.getDate().toString().padStart(2, "0")}`;
+
+      calendarElement.setAttribute(
+        "aria-activedescendant",
+        `__CDID__${formattedToday}_`
+      );
+
+      // After rendering the calendar, find the focused element and set aria-activedescendant
+      function setAriaActiveDescendant() {
+        const focusedSpan = document.querySelector(
+          ".calendar-grid-item span.focus"
+        );
+
+        if (focusedSpan) {
+          const parentDivId = focusedSpan.parentElement.id;
+          const calendar = document.querySelector(".calendar");
+          calendar.setAttribute("aria-activedescendant", parentDivId);
+        }
+      }
+
+      setAriaActiveDescendant();
+
+      function updateSelectedDateElements(formattedDate) {
+        const date = new Date(formattedDate);
+        const selectedDateYmd = formatDateYmd(date);
+        const selectedFormatted = formatDateLong(date);
+        const selectedIsoFormatted = formatISODate(date);
+
+        const selectedDateDisplayYmd =
+          document.querySelector(".selected-date-Ymd");
+        const selectedDateDisplayFull = document.querySelector(
+          ".selected-formatted-date"
+        );
+        const selectedDateDisplayIso = document.querySelector(
+          ".selected-formatted-iso"
+        );
+
+        if (isNaN(date)) {
+          selectedDateDisplayYmd.textContent = "Date not selected";
+          selectedDateDisplayFull.textContent = "Date not selected";
+          selectedDateDisplayIso.textContent = "Date not selected";
+        } else {
+          // For displaying the date in YYYY-MM-DD format ex 2026-07-01
+          selectedDateDisplayYmd.textContent = selectedDateYmd;
+          // For displaying the date in long format ex: Wednesday, July 1, 2026
+          selectedDateDisplayFull.textContent = selectedFormatted;
+          // For displaying the date in ISO format ex 2026-07-01T04:00:00.000Z
+          selectedDateDisplayIso.textContent = selectedIsoFormatted;
+        }
+      }
+
+      updateSelectedDateElements("No date selected");
+
+      function updateActiveDateElements() {
+        const focusedSpan = document.querySelector(
+          ".calendar-grid-item span.focus"
+        );
+        const activeDateYMD = document.querySelector(".active-date-ymd");
+        const activeLongDate = document.querySelector(
+          ".active-formatted-date-long"
+        );
+        const activeIsoDate = document.querySelector(".active-formatted-iso");
+
+        if (focusedSpan) {
+          const dataDate = focusedSpan.parentElement.getAttribute("data-date");
+          // For displaying the active date in YYYY-MM-DD format ex 2026-07-01, on keyboard navigation
+          activeDateYMD.textContent = dataDate;
+          // For displaying the active date in long format ex: Wednesday, July 1, 2026, on keyboard navigation
+          activeLongDate.textContent = formatActiveDateLong(dataDate); // Use your formatting function if necessary
+          // For displaying the date in ISO format ex 2026-07-01T04:00:00.000Z, on keyboard navigation
+          activeIsoDate.textContent = formatToActiveISODate(dataDate); // Use your formatting function if necessary
+        } else {
+          activeDateYMD.textContent = "Date not selected";
+          activeLongDate.textContent = "Date not selected";
+          activeIsoDate.textContent = "Date not selected";
+        }
+      }
+
+      updateActiveDateElements();
+    </script>
+  </body>
+</html>

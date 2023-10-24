@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Timepicker Component</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://pro.fontawesome.com/releases/v6.0.0-beta1/css/all.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* Using Bootstrap 5 as main CSS framework */
+
+      .example {
+        position: relative;
+        padding: 1rem;
+        margin: 1rem;
+        border: 1px solid #dee2e6;
+      }
+
+      .time-picker {
+        position: relative;
+      }
+
+      .time-input,
+      .time-icon {
+        display: inline-block;
+      }
+
+      .time-icon {
+        cursor: pointer;
+        border-width: 0;
+        border-left-width: 1px;
+        border-left-color: #ccc;
+      }
+
+      .time-dropdown {
+        position: absolute;
+        top: 38px;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        padding: 5px;
+        z-index: 1;
+      }
+
+      .time-dropdown.hidden {
+        display: none;
+      }
+
+      .time-spinner {
+        border: 1px solid #ccc;
+        border-radius: 0.3rem;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        margin: 0 0.5rem;
+      }
+
+      .time-picker .input-group {
+        border: 1px solid #ccc;
+        border-radius: 0.375rem;
+      }
+
+      .time-picker .input-group .form-control {
+        border: none;
+      }
+
+      .time-spinner-wrapper {
+        display: flex;
+        margin-bottom: 0.5rem;
+      }
+
+      .time-spinner.am-pm-spinner {
+        border: 1px solid #ccc;
+        border-radius: 0.3rem;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        margin: 0 0.5rem;
+      }
+
+      .am-pm-spinner.hidden {
+        display: none;
+      }
+
+      .time-spinner-colon {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .time-spinner-colon .dot {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        margin: 0.5rem 0;
+        font-size: 0.5rem;
+      }
+
+      .time-spinner-close {
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
+      }
+
+      input[type="number"] {
+        width: 40px;
+      }
+
+      button.arrow {
+        align-items: center;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        padding: 0.25rem 0.5rem;
+        border: none;
+        background-color: #fff;
+      }
+
+      button.arrow:hover {
+        background-color: #e1e1e1;
+      }
+
+      button.arrow.up {
+        border-bottom: 1px solid #ccc;
+        border-radius: 0.3rem 0.3rem 0 0;
+      }
+      button.arrow.down {
+        border-top: 1px solid #ccc;
+        border-radius: 0 0 0.3rem 0.3rem;
+      }
+
+      .clear-button {
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0.25rem 0.5rem;
+        color: #959595;
+        margin-left: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        user-select: none;
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+          border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+      }
+
+      .clear-button:hover {
+        color: #ac0000;
+      }
+
+      .validation-message,
+      .warning-message {
+        color: #ac0000;
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Timepicker component starts here -->
+    <div class="example col-md-4" aria-labelledby="timepicker-label">
+      <div class="time-picker">
+        <!-- Input group for the timepicker -->
+        <label for="time-input" id="time-label" class="sr-only"
+          >Enter Time</label
+        >
+        <div class="input-group mb-1">
+          <input
+            type="text"
+            class="form-control time-input"
+            placeholder="Enter Time"
+            aria-label="Time"
+            role="textbox"
+            aria-labelledby="time-label"
+            aria-controls="time-dropdown"
+            aria-invalid="false"
+            aria-describedby="validation-message"
+          />
+          <!-- Clear button to reset the time -->
+          <button class="clear-button" aria-label="Clear Time" role="button">
+            <i class="fa-regular fa-circle-xmark"></i>
+          </button>
+          <!-- Time icon button to open the timepicker dropdown -->
+          <button
+            class="time-icon input-group-text btn btn-outline-secondary"
+            aria-label="Open Timepicker"
+            role="button"
+            tabindex="0"
+          >
+            <i class="fa-solid fa-clock"></i>
+          </button>
+        </div>
+
+        <!-- Validation message for displaying errors -->
+        <div
+          class="validation-message"
+          style="display: none"
+          role="alert"
+          id="validation-message"
+        ></div>
+
+        <div
+          class="warning-message"
+          style="display: none"
+          role="alert"
+          id="warning-message"
+        >
+          <i class="fa-solid fa-exclamation-triangle"></i> Time values cannot
+          exceed the limits.
+        </div>
+
+        <!-- Dropdown container for the timepicker -->
+        <div
+          class="time-dropdown hidden"
+          role="listbox"
+          aria-hidden="true"
+          aria-labelledby="time-label"
+          tabindex="0"
+        >
+          <div class="time-spinner-wrapper">
+            <!-- Spinner for hours -->
+            <div class="time-spinner">
+              <button
+                class="arrow up"
+                data-type="hour"
+                aria-label="Increment Hour"
+                role="button"
+              >
+                <i class="fa-solid fa-chevron-up"></i>
+              </button>
+              <span
+                class="hour-display"
+                role="option"
+                aria-selected="false"
+                aria-activedescendant="active-hour"
+                tabindex="0"
+                id="active-hour"
+                >00</span
+              >
+              <button
+                class="arrow down"
+                data-type="hour"
+                aria-label="Decrement Hour"
+                role="button"
+              >
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+            </div>
+            <div class="time-spinner-colon">
+              <div class="dot"><i class="fa-solid fa-circle"></i></div>
+              <div class="dot"><i class="fa-solid fa-circle"></i></div>
+            </div>
+            <!-- Colon between hours and minutes -->
+            <!-- Spinner for minutes -->
+            <div class="time-spinner">
+              <button
+                class="arrow up"
+                data-type="minute"
+                aria-label="Increment Minute"
+                role="button"
+              >
+                <i class="fa-solid fa-chevron-up"></i>
+              </button>
+              <span
+                class="minute-display"
+                role="option"
+                aria-selected="false"
+                aria-activedescendant="active-minute"
+                tabindex="0"
+                id="active-minute"
+                >00</span
+              >
+              <button
+                class="arrow down"
+                data-type="minute"
+                aria-label="Decrement Minute"
+                role="button"
+              >
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+            </div>
+            <div class="time-spinner-colon">
+              <div class="dot"><i class="fa-solid fa-circle"></i></div>
+              <div class="dot"><i class="fa-solid fa-circle"></i></div>
+            </div>
+            <!-- Colon between minutes and seconds -->
+            <!-- Spinner for seconds -->
+            <div class="time-spinner">
+              <button
+                class="arrow up"
+                data-type="second"
+                aria-label="Increment Second"
+                role="button"
+              >
+                <i class="fa-solid fa-chevron-up"></i>
+              </button>
+              <span
+                class="second-display"
+                role="option"
+                aria-selected="false"
+                aria-activedescendant="active-second"
+                tabindex="0"
+                id="active-second"
+                >00</span
+              >
+              <button
+                class="arrow down"
+                data-type="second"
+                aria-label="Decrement Second"
+                role="button"
+              >
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+            </div>
+
+            <!-- AM/PM spinner (visible for 12-hour format) -->
+            <div class="time-spinner am-pm-spinner">
+              <button
+                class="arrow up"
+                data-type="ampm"
+                aria-label="Increment AM/PM"
+                role="button"
+              >
+                <i class="fa-solid fa-chevron-up"></i>
+              </button>
+              <span
+                class="ampm-display"
+                role="option"
+                aria-selected="false"
+                tabindex="0"
+                id="active-ampm"
+                aria-activedescendant="active-ampm"
+                >AM</span
+              >
+
+              <button
+                class="arrow down"
+                data-type="ampm"
+                aria-label="Decrement AM/PM"
+                role="button"
+              >
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+            </div>
+          </div>
+          <div class="time-spinner-close">
+            <button
+              class="btn btn-outline-primary btn-sm close-button"
+              aria-label="Close"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+
+        <!-- Toggle button to switch between 12-hour and 24-hour format -->
+        <button
+          class="toggle-button btn btn-outline-secondary btn-sm mt-2"
+          aria-label="Toggle 12/24 Hour Format"
+          role="button"
+        >
+          Toggle 12/24 Hour Format
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // Wait for the DOM content to be loaded before executing the script
+      document.addEventListener("DOMContentLoaded", function () {
+        // Get references to various elements in the DOM
+        const timeIcon = document.querySelector(".time-icon");
+        const timeDropdown = document.querySelector(".time-dropdown");
+        const closeButton = document.querySelector(".close-button");
+        const hourDisplay = document.querySelector(".hour-display");
+        const minuteDisplay = document.querySelector(".minute-display");
+        const secondDisplay = document.querySelector(".second-display");
+        const ampmDisplay = document.querySelector(".ampm-display");
+        const timeInput = document.querySelector(".time-input");
+        const clearButton = document.querySelector(".clear-button");
+
+        let validationMessage = ""; // Variable to store the validation message
+
+        // Toggle the visibility of the time dropdown when the time icon is clicked
+        timeIcon.addEventListener("click", function () {
+          timeDropdown.classList.toggle("hidden");
+          timeDropdown.setAttribute(
+            "aria-hidden",
+            timeDropdown.classList.contains("hidden").toString()
+          );
+        });
+
+        // Function to close the dropdown when the user clicks outside of it
+        document.addEventListener("click", function (event) {
+          const target = event.target;
+          if (!timeIcon.contains(target) && !timeDropdown.contains(target)) {
+            timeDropdown.classList.add("hidden");
+            timeDropdown.setAttribute("aria-hidden", "true");
+          }
+        });
+
+        let is24HourFormat = true; // Set this to 'false' for 12-hour format
+
+        // Function to toggle the AM/PM spinner and format the time based on the format (12-hour or 24-hour)
+        function toggleAMPMSpinner() {
+          const ampmSpinner = document.querySelector(".am-pm-spinner");
+          const toggleButton = document.querySelector(".toggle-button");
+
+          if (is24HourFormat) {
+            ampmSpinner.classList.add("hidden");
+            ampmSpinner.setAttribute("aria-hidden", "true");
+
+            // Convert 12-hour time to 24-hour time for the dropdown
+            let hours = parseInt(hourDisplay.textContent, 10);
+            const ampm = ampmDisplay.textContent;
+
+            if (ampm === "AM" && hours === 12) {
+              hours = 0; // Handle 12:00:00 AM
+            } else if (ampm === "PM" && hours !== 12) {
+              hours += 12; // Add 12 hours for PM times other than 12:00:00 PM
+            }
+
+            const formattedHours = hours.toString().padStart(2, "0");
+
+            hourDisplay.textContent = formattedHours;
+            ampmDisplay.textContent = " Z"; // Display 'Z' for 24-hour format
+            timeInput.placeholder = "Enter Time";
+            toggleButton.textContent = "Change to 12-Hour time";
+          } else {
+            ampmSpinner.classList.remove("hidden");
+            ampmSpinner.setAttribute("aria-hidden", "false");
+
+            let hours = parseInt(hourDisplay.textContent, 10);
+            const ampm = hours >= 12 ? "PM" : "AM";
+
+            // Convert 24-hour time to 12-hour time for the dropdown
+            if (hours === 0) {
+              hours = 12; // Handle 00:00:00
+            } else if (hours > 12) {
+              hours -= 12; // Subtract 12 hours for PM times
+            }
+
+            const formattedHours = hours.toString().padStart(2, "0");
+
+            hourDisplay.textContent = formattedHours;
+            ampmDisplay.textContent = ampm;
+            timeInput.placeholder = "Enter Time"; // Placeholder for 12-hour format
+            toggleButton.textContent = "Change to 24-Hour time";
+          }
+
+          // Update the format without toggling 'is24HourFormat' here
+          formatTime();
+        }
+
+        // Call the function initially to handle the initial state
+        toggleAMPMSpinner();
+
+        // Function to format the time based on the input value
+        function formatTime() {
+          // Define regular expressions for 12-hour and 24-hour time formats
+          const timePattern = is24HourFormat
+            ? /^(\d{1,2})(\d{1,2})?(\d{1,2})?$/
+            : /^(\d{1,2})(\d{1,2})?(\d{1,2})? (\w{2})?$/;
+          const matches = timeInput.value.match(timePattern);
+
+          if (matches) {
+            let hours = parseInt(matches[1], 10);
+            const minutes = matches[2] ? parseInt(matches[2], 10) : 0;
+            const seconds = matches[3] ? parseInt(matches[3], 10) : 0;
+            let ampm = is24HourFormat
+              ? " Z"
+              : (matches[4] || "AM").toUpperCase();
+
+            // Convert the time format if needed
+            if (!is24HourFormat) {
+              if (hours === 0 && ampm === "AM") {
+                hours = 12;
+              } else if (ampm === "PM" && hours < 12) {
+                hours += 12;
+              } else if (ampm === "AM" && hours === 12) {
+                hours = 0;
+              }
+            } else {
+              if (hours === 0) {
+                ampm = "AM";
+                hours = 12;
+              } else if (hours === 12) {
+                ampm = "PM";
+              } else if (hours > 12) {
+                ampm = "PM";
+              }
+            }
+
+            // Update the display elements with the formatted time
+            hourDisplay.textContent = hours.toString().padStart(2, "0");
+            minuteDisplay.textContent = minutes.toString().padStart(2, "0");
+            secondDisplay.textContent = seconds.toString().padStart(2, "0");
+            ampmDisplay.textContent = ampm;
+          }
+
+          // Update the input field after formatting the time
+          updateInput();
+        }
+
+        // Function to handle incrementing or decrementing the time values
+        function incrementDecrement(target, increment) {
+          const isHour = target.classList.contains("hour-display");
+          const isMinute = target.classList.contains("minute-display");
+          const isSecond = target.classList.contains("second-display");
+          const isAMPM = target.classList.contains("ampm-display");
+
+          let value = isAMPM
+            ? target.textContent
+            : parseInt(target.textContent, 10);
+
+          if (isAMPM) {
+            if (is24HourFormat && value === " Z") {
+              value = increment ? "AM" : "PM";
+            } else {
+              value = increment
+                ? value === "AM"
+                  ? "PM"
+                  : "AM"
+                : value === "AM"
+                ? "PM"
+                : "AM";
+            }
+          } else if (isHour || isMinute || isSecond) {
+            if (increment) {
+              value += 1;
+              if (isHour) {
+                // Handle the 12-hour format boundary
+                if (is24HourFormat) {
+                  if (value === 24) {
+                    value = 1;
+                  }
+                } else {
+                  if (value > 12) {
+                    value = 1;
+                  }
+                }
+              } else if ((isMinute || isSecond) && value > 59) {
+                value = 0;
+              }
+            } else {
+              value -= 1;
+              if (isHour) {
+                // Handle the 12-hour format boundary
+                if (is24HourFormat) {
+                  if (value === 0) {
+                    value = 23;
+                  }
+                } else {
+                  if (value < 1) {
+                    value = 12;
+                  }
+                }
+              } else if ((isHour || isMinute || isSecond) && value < 0) {
+                value = 59;
+              }
+            }
+          }
+
+          target.textContent = isAMPM
+            ? value
+            : value.toString().padStart(2, "0");
+
+          updateInput();
+        }
+
+        // Function to update the input field with the current time based on display elements
+        function updateInput() {
+          const hours = parseInt(hourDisplay.textContent, 10);
+          const minutes = minuteDisplay.textContent.padStart(2, "0");
+          const seconds = secondDisplay.textContent.padStart(2, "0");
+          const ampm = is24HourFormat ? "Z" : ampmDisplay.textContent || "AM";
+
+          // Create the selected time based on the format (12-hour or 24-hour)
+          const formattedHours = is24HourFormat
+            ? hours.toString().padStart(2, "0")
+            : (hours % 12 || 12).toString().padStart(2, "0");
+
+          const selectedTime = is24HourFormat
+            ? `${formattedHours}:${minutes}:${seconds} ${ampm}`
+            : `${formattedHours}:${minutes}:${seconds} ${ampm}`;
+
+          // Update the input field value with the selected time
+          timeInput.value = selectedTime;
+        }
+
+        // Function to update the dropdown based on the input field value
+        function updateDropdown() {
+          const timePattern = is24HourFormat
+            ? /^(\d{2}):(\d{2}):(\d{2})( Z)?$/
+            : /^(\d{2}):(\d{2}):(\d{2}) (\w{2})?$/;
+          const matches = timeInput.value.match(timePattern);
+
+          console.log("Input value:", timeInput.value);
+          console.log("Matches for updateDropdown():", matches);
+
+          if (matches) {
+            let hours = parseInt(matches[1], 10);
+            const minutes = parseInt(matches[2], 10);
+            const seconds = parseInt(matches[3], 10);
+            let ampm = is24HourFormat
+              ? "AM"
+              : matches[4]?.toUpperCase() || "AM";
+
+            if (!is24HourFormat) {
+              if (hours === 0 && ampm === "AM") {
+                ampm = "PM";
+              } else if (hours > 12) {
+                ampm = "PM";
+                hours -= 12;
+              }
+            }
+
+            // Update the display elements with the parsed time
+            hourDisplay.textContent = hours.toString().padStart(2, "0");
+            minuteDisplay.textContent = minutes.toString().padStart(2, "0");
+            secondDisplay.textContent = seconds.toString().padStart(2, "0");
+            ampmDisplay.textContent = ampm;
+
+            // Update the AM/PM spinner in the dropdown
+            const ampmSpinner = document.querySelector(".am-pm-spinner");
+            const toggleButton = document.querySelector(".toggle-button");
+            if (is24HourFormat) {
+              ampmSpinner.classList.add("hidden");
+              ampmSpinner.setAttribute("aria-hidden", "true");
+              toggleButton.textContent = "Change to 12-Hour time";
+            } else {
+              ampmSpinner.classList.remove("hidden");
+              ampmSpinner.setAttribute("aria-hidden", "false");
+              toggleButton.textContent = "Change to 24-Hour time";
+            }
+
+            // Special case: If the input matches 12-hour format and is "12:00:00 AM" or "12:00:00 PM",
+            // update the AM/PM spinner text to match the input
+            if (
+              is24HourFormat === false &&
+              hours === 12 &&
+              minutes === 0 &&
+              seconds === 0
+            ) {
+              ampmDisplay.textContent = ampm;
+            }
+          }
+        }
+
+        // Function to update the display elements when the user types or pastes in the input field
+        function updateTimeFromInput() {
+          const timePattern = is24HourFormat
+            ? /^(\d{1,2})(?::(\d{1,2})(?::(\d{1,2}))?)?$/
+            : /^(\d{1,2})(?::(\d{1,2})(?::(\d{1,2}))?)? (\w{2})?$/;
+          const matches = timeInput.value.match(timePattern);
+
+          if (matches) {
+            let hours = parseInt(matches[1], 10);
+            const minutes = matches[2] ? parseInt(matches[2], 10) : 0;
+            const seconds = matches[3] ? parseInt(matches[3], 10) : 0;
+            let ampm = is24HourFormat
+              ? "AM"
+              : (matches[4] || "AM").toUpperCase();
+
+            if (!is24HourFormat) {
+              if (hours === 12) {
+                ampm = "PM";
+              } else if (hours > 12) {
+                ampm = "PM";
+                hours -= 12;
+              }
+            }
+
+            // Update the display elements with the parsed time
+            hourDisplay.textContent = hours.toString().padStart(2, "0");
+            minuteDisplay.textContent = minutes.toString().padStart(2, "0");
+            secondDisplay.textContent = seconds.toString().padStart(2, "0");
+            ampmDisplay.textContent = ampm;
+          }
+        }
+
+        // Function to validate the input, format the time, and hide the dropdown
+        function validateAndFormatTime(input) {
+          const isValid = isValidInput(timeInput.value);
+          if (isValid) {
+            formatTime();
+            timeDropdown.classList.add("hidden");
+            timeDropdown.setAttribute("aria-hidden", "true");
+          }
+        }
+
+        // Function to show a validation message
+        function showValidationMessage(message) {
+          validationMessage = message; // Update the global validation message
+          const validationMessageElement = document.querySelector(
+            ".validation-message"
+          );
+          validationMessageElement.textContent = validationMessage;
+          validationMessageElement.style.display = "block";
+        }
+
+        // Function to hide the validation message
+        function hideValidationMessage() {
+          validationMessage = ""; // Clear the global validation message
+          const validationMessageElement = document.querySelector(
+            ".validation-message"
+          );
+          validationMessageElement.style.display = "none";
+        }
+
+        // Function to validate the input and check if it matches the specified time pattern
+        function isValidInput(input) {
+          const timePattern = is24HourFormat
+            ? /^(\d{1,2})(?::(\d{1,2})(?::(\d{1,2}))?( Z)?)?$/
+            : /^(\d{1,2})(?::(\d{1,2})(?::(\d{1,2}))? (\w{2})?)?$/;
+          const matches = input.match(timePattern);
+          console.log("Mathches", matches);
+          // If the input doesn't match the time pattern or is 'AM' or 'PM', display a validation message and return false
+          if (!matches || /^(AM|PM)$/i.test(input)) {
+            console.log("invalid format detected");
+            showValidationMessage(
+              is24HourFormat
+                ? "Invalid time format. Correct format is 00:00:00 Z."
+                : "Invalid time format. Correct format is 00:00:00 AM(or PM)."
+              // Variable to store the validation message
+            );
+            return false;
+          }
+
+          const hours = parseInt(matches[1], 10);
+          const minutes = matches[3] ? parseInt(matches[3], 10) : 0;
+          const seconds = matches[5] ? parseInt(matches[5], 10) : 0;
+          const ampm = is24HourFormat
+            ? "AM"
+            : (matches[6] || "AM").toUpperCase();
+
+          // Show a warning message if the input values exceed the limits
+          if (
+            (is24HourFormat && hours > 23) ||
+            (!is24HourFormat && hours > 12)
+          ) {
+            showWarningMessage();
+            return false;
+          }
+
+          if (minutes > 59 || seconds > 59) {
+            showWarningMessage();
+            return false;
+          }
+
+          // Hide the validation and warning messages if the input is valid and return true
+          hideValidationMessage();
+          hideWarningMessage();
+          return true;
+        }
+
+        // Function to show the warning message
+        function showWarningMessage() {
+          const warningMessageElement =
+            document.querySelector(".warning-message");
+          warningMessageElement.style.display = "block";
+        }
+
+        // Function to hide the warning message
+        function hideWarningMessage() {
+          const warningMessageElement =
+            document.querySelector(".warning-message");
+          warningMessageElement.style.display = "none";
+        }
+
+        // Event listeners for the time input field
+
+        // Hide the dropdown when the input field is focused
+        timeInput.addEventListener("focus", function () {
+          timeDropdown.classList.add("hidden");
+          timeDropdown.setAttribute(
+            "aria-hidden",
+            timeDropdown.classList.contains("hidden").toString()
+          );
+        });
+
+        timeInput.addEventListener("input", function (event) {
+          updateTimeFromInput();
+          updateDropdown();
+          hideValidationMessage();
+          hideWarningMessage(); // Hide the warning message when the input is updated
+
+          // Check if the entered values exceed the limits
+          const hours = parseInt(hourDisplay.textContent, 10);
+          const minutes = parseInt(minuteDisplay.textContent, 10);
+          const seconds = parseInt(secondDisplay.textContent, 10);
+
+          if (
+            (is24HourFormat && (hours > 23 || minutes > 59 || seconds > 59)) ||
+            (!is24HourFormat && (hours > 12 || minutes > 59 || seconds > 59))
+          ) {
+            showWarningMessage(); // Show the warning message
+          } else {
+            hideWarningMessage(); // Hide the warning message
+          }
+        });
+
+        // Prevent pasting invalid input in the time input field
+        timeInput.addEventListener("paste", function (event) {
+          const clipboardData = event.clipboardData || window.clipboardData;
+          const pastedData = clipboardData.getData("text");
+          if (!isValidInput(pastedData)) {
+            event.preventDefault();
+          }
+        });
+
+        // Handle the 'Enter' key press event in the input field
+        timeInput.addEventListener("keypress", function (event) {
+          if (event.key === "Enter") {
+            const isValid = isValidInput(event.target.value);
+            if (isValid) {
+              if (is24HourFormat) {
+                formatTime();
+              } else {
+                updateInput(); // Format the time in 12-hour format
+              }
+              timeDropdown.classList.add("hidden");
+              timeDropdown.setAttribute("aria-hidden", "true");
+            } else {
+              showValidationMessage(
+                is24HourFormat
+                  ? "Invalid time format. Correct format is 00:00:00 Z."
+                  : "Invalid time format. Correct format is 00:00:00 AM(or PM)."
+                // Variable to store the validation message
+              );
+            }
+          }
+        });
+
+        // Event listener for the clear button
+        clearButton.addEventListener("click", function () {
+          // Reset the time input value to default based on the format
+          timeInput.value = is24HourFormat ? "00:00:00 Z" : "12:00:00 AM";
+          updateDropdown(); // Update the dropdown to match the cleared input value
+          hideValidationMessage(); // Hide the validation message when the clear button is clicked
+          hideWarningMessage(); // Hide the warning message when the clear button is clicked
+
+          if (is24HourFormat) {
+            hourDisplay.textContent = "00";
+            ampmDisplay.textContent = " Z";
+          } else {
+            hourDisplay.textContent = "12";
+            ampmDisplay.textContent = "AM";
+          }
+        });
+
+        // Event listener for the arrow buttons (increment/decrement time)
+        document.querySelectorAll(".arrow").forEach((arrow) => {
+          arrow.addEventListener("click", function () {
+            const increment = this.classList.contains("up");
+            const target = this.parentElement.querySelector(
+              `.${this.dataset.type}-display`
+            );
+            incrementDecrement(target, increment);
+          });
+        });
+
+        // Event listener for the close button
+        closeButton.addEventListener("click", function () {
+          timeDropdown.classList.add("hidden");
+          timeDropdown.setAttribute("aria-hidden", "true");
+        });
+
+        // Event listener for the toggle button (change between 12-hour and 24-hour format)
+        const toggleButton = document.querySelector(".toggle-button");
+        toggleButton.addEventListener("click", function () {
+          is24HourFormat = !is24HourFormat; // Toggle the format
+          toggleAMPMSpinner(); // Update the AM/PM spinner visibility based on the format
+          formatTime(); // Format the time based on the new format
+          hideValidationMessage(); // Hide the validation message when the format is changed
+          hideWarningMessage(); // Hide the warning message when the format is changed
+        });
+      });
+    </script>
+  </body>
+</html>

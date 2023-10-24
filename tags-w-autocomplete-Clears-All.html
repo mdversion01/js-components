@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+      integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .example {
+        position: relative;
+        padding: 1rem;
+        margin: 1rem;
+        border: 1px solid #dee2e6;
+
+        background-color: #3e3e3e;
+      }
+
+      .tags-container {
+        margin-bottom: 10px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        display: flex;
+      }
+
+      .tags-container .input-group {
+        align-items: center;
+      }
+
+      .tags-container .input-group .input[type="text"] {
+        font: inherit;
+        background: rgba(0, 0, 0, 0);
+        color: #fff;
+        border: none;
+        outline: none;
+        padding: 0.5rem;
+        margin: 0;
+        width: 150px;
+        flex: 1 1 150px;
+        vertical-align: bottom;
+        text-align: inherit;
+        box-sizing: content-box;
+      }
+
+      .tags-container .input-group-prepend {
+        margin-right: 0 !important;
+      }
+
+      .tags-container .input-group-prepend .add-btn {
+        cursor: pointer;
+        border-radius: 50% !important;
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+      }
+
+      .tags-container .input-group-prepend .clear-btn {
+        cursor: pointer;
+        border-radius: 50% !important;
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+      }
+
+      .badge-container {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 0;
+      }
+
+      .badge-container .badge {
+        padding: 0.35rem 0.5rem;
+        margin: 0.25rem;
+        border-radius: 1rem;
+        border: 1px solid #8e8e8e !important;
+        background-color: transparent !important;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+
+      .badge-container .badge::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: inherit;
+        opacity: 0;
+        transition: opacity 0.2s cubic-bezier(0.35, 0, 0.25, 1);
+      }
+
+      .badge-container .badge:hover::after {
+        opacity: 0.12;
+      }
+
+      .badge-container .badge::after {
+        background: #fff;
+      }
+
+      .badge-container .badge span {
+        margin-right: 0.5rem;
+        cursor: pointer;
+      }
+
+      .badge-container .badge .remove-btn {
+        cursor: pointer;
+        position: relative;
+        z-index: 1;
+      }
+
+      .badge-container .badge .remove-btn:hover {
+        color: #ff5d6d;
+      }
+
+      /* Underline the .tags-container */
+      .b-underline {
+        position: relative;
+        display: block;
+        width: 100%;
+        height: 1px;
+        background-color: #ccc;
+        transition: 0.4s;
+      }
+
+      .b-focus {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background-color: #2680eb;
+        transition: 0.4s;
+      }
+
+      /* Validation styles */
+      .tag-exists {
+        color: #ff5d6d;
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+      }
+
+      .dropdown {
+        display: flex;
+        flex: 1 1 auto;
+      }
+
+      .dropdown-menu {
+        background-color: #3e3e3e;
+        color: #f1f1f1;
+        display: none;
+        position: absolute;
+        min-width: 100%;
+        height: auto;
+        /* box-shadow: 0px 4px 4px 3px rgba(0,0,0,0.9); */
+        font-size: 0.875rem;
+        top: 38px;
+        left: 5px;
+        border-radius: 0 0 0.25rem 0.25rem;
+        z-index: 5;
+      }
+
+      .dropdown-menu a {
+        padding: 0.25rem 0.5rem;
+        text-decoration: none;
+        display: block;
+      }
+
+      .dropdown-menu a:hover {
+        background-color: rgba(255, 255, 255, 0.04);
+      }
+
+      .dropdown:hover .dropdown-menu {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+
+    <div class="example">
+      <div class="tags-container">
+        <div
+          id="badge-container"
+          class="badge-container"
+          role="list"
+          aria-live="polite"
+        ></div>
+        <div class="dropdown">
+          <div class="input-group">
+            <input
+              id="tag-input"
+              type="text"
+              class="input"
+              placeholder="Enter a term or keyword"
+              aria-label="Enter a term or keyword"
+              role="combobox"
+              autocomplete="off"
+              aria-autocomplete="list"
+              aria-expanded="false"
+              aria-owns="tag-dropdown"
+            />
+            <div class="input-group-prepend px-2">
+              <button
+                id="clear-button"
+                class="clear-btn btn btn-outline-secondary"
+                aria-label="Clear all tags"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="input-group-prepend">
+              <button
+                id="add-button"
+                class="add-btn btn btn-outline-secondary"
+                aria-label="Add tag"
+              >
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+
+            
+          </div>
+
+          <div
+              class="dropdown-menu"
+              id="tag-dropdown"
+              role="listbox"
+            ></div>
+        </div>
+
+        <div class="b-underline" role="presentation">
+          <div class="b-focus" role="presentation"></div>
+        </div>
+        <div
+          id="error-message"
+          class="tag-exists d-none"
+          role="alert"
+          aria-live="assertive"
+        >
+          The term or keyword already exists.
+        </div>
+      </div>
+    </div>
+
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct"
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      const tagInput = document.getElementById("tag-input");
+      const tagsContainer = document.querySelector(".tags-container");
+      const addButton = document.getElementById("add-button");
+      const clearButton = document.getElementById("clear-button");
+      const badgeContainer = document.getElementById("badge-container");
+      const tagDropdown = document.getElementById("tag-dropdown");
+      const errorMessage = document.getElementById("error-message");
+      let tags = [];
+
+      const bFocusDiv = document.querySelector(".b-focus");
+
+      // Event listener for when the input container is clicked
+      tagsContainer.addEventListener("click", (event) => {
+        // Check if the click is not on the tag dropdown
+        if (!tagDropdown.contains(event.target)) {
+          bFocusDiv.style.width = "100%";
+          bFocusDiv.style.left = "0";
+        }
+      });
+
+      // Event listener for when clicking outside the input container
+      document.addEventListener("click", (event) => {
+        // Check if the click is not within the input container and not on the tag dropdown
+        if (
+          !tagsContainer.contains(event.target) &&
+          !tagDropdown.contains(event.target)
+        ) {
+          bFocusDiv.style.width = "0";
+          bFocusDiv.style.left = "50%";
+          tagDropdown.innerHTML = "";
+        }
+      });
+
+      // Function to create and add a new badge
+      function createBadge(tag) {
+        const badge = document.createElement("div");
+        badge.classList.add("badge");
+        badge.classList.add("bg-secondary");
+        badge.dataset.tag = tag;
+        badge.innerHTML = `
+    <span>${tag}</span>
+    <i class="remove-btn far fa-times-circle" data-tag="${tag}" tabindex="0"></i>`;
+        badgeContainer.appendChild(badge);
+      }
+
+      // Function to remove a badge
+      function removeBadge(tag) {
+        const badgeToRemove = document.querySelector(
+          `.badge[data-tag="${tag}"]`
+        );
+        badgeContainer.removeChild(badgeToRemove);
+      }
+
+      // Function to display the validation error message
+      function displayErrorMessage(message) {
+        errorMessage.textContent = message;
+        errorMessage.classList.remove("d-none");
+      }
+
+      // Function to hide the validation error message
+      function hideErrorMessage() {
+        errorMessage.textContent = "";
+        errorMessage.classList.add("d-none");
+      }
+
+      // Function to add a new tag
+      function addTag() {
+        const tagInputValue = tagInput.value.trim();
+        if (tagInputValue !== "") {
+          const tagsToAdd = tagInputValue.split(/[ ,;]/);
+          let hasError = false;
+
+          tagsToAdd
+            .filter((tag) => tag.trim() !== "") // Filter out empty tags
+            .forEach((tag) => {
+              if (tags.includes(tag)) {
+                hasError = true;
+                displayErrorMessage("The term or keyword already exists.");
+              } else {
+                tags.push(tag);
+                createBadge(tag);
+              }
+            });
+
+          if (!hasError) {
+            hideErrorMessage();
+            tagInput.value = "";
+            updateTagDropdown();
+            saveTagsToLocalStorage();
+          }
+        }
+      }
+
+      // Function to handle removing a tag
+      function handleRemove(e) {
+        if (e.target.classList.contains("remove-btn")) {
+          const badge = e.target.parentNode;
+          const tagToRemove = badge.dataset.tag;
+          const index = tags.indexOf(tagToRemove);
+          if (index !== -1) {
+            tags.splice(index, 1);
+            removeBadge(tagToRemove);
+            updateTagDropdown();
+            saveTagsToLocalStorage();
+            //localStorage.removeItem("tags"); // Clear local storage
+            hideErrorMessage(); // Hide the validation message
+          }
+        }
+      }
+
+      // Function to update the tag dropdown based on input
+      function updateTagDropdown() {
+        const tagInputValue = tagInput.value.trim();
+        tagDropdown.innerHTML = "";
+        if (tagInputValue !== "") {
+          const filteredTags = tags.filter((tag) =>
+            tag.startsWith(tagInputValue)
+          );
+          filteredTags.forEach((tag) => {
+            const option = document.createElement("a");
+            option.textContent = tag;
+            option.setAttribute("role", "option");
+            option.addEventListener("mousedown", (e) => {
+              tagInput.value = tag;
+              tagDropdown.innerHTML = "";
+              tagInput.focus();
+              e.stopPropagation(); // Stop the mousedown event from propagating to document
+            });
+            tagDropdown.appendChild(option);
+          });
+          tagDropdown.setAttribute("aria-expanded", "true");
+        } else {
+          tagDropdown.setAttribute("aria-expanded", "false");
+        }
+      }
+
+      // Function to handle mousedown on tag input
+      function handleTagInputMousedown(e) {
+        e.stopPropagation(); // Stop the mousedown event from propagating to document
+      }
+
+      // Function to close the tag dropdown
+      function closeTagDropdown() {
+        tagDropdown.innerHTML = "";
+        tagDropdown.setAttribute("aria-expanded", "false");
+      }
+
+      // Function to save tags to local storage
+      function saveTagsToLocalStorage() {
+        localStorage.setItem("tags", JSON.stringify(tags));
+      }
+
+      // Function to load tags from local storage
+      function loadTagsFromLocalStorage() {
+        const savedTags = localStorage.getItem("tags");
+        if (savedTags) {
+          tags = JSON.parse(savedTags);
+          tags.forEach((tag) => createBadge(tag));
+        }
+      }
+
+      // Event listener for the add button
+      addButton.addEventListener("click", addTag);
+
+      // Event listener for tag input keypress
+      tagInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          addTag();
+        }
+      });
+
+      // Event listener for badge container click
+      badgeContainer.addEventListener("click", handleRemove);
+
+      // Event listener for tag input input
+      tagInput.addEventListener("input", () => {
+        const tagInputValue = tagInput.value.trim();
+        if (tagInputValue === "") {
+          hideErrorMessage();
+        }
+        updateTagDropdown();
+      });
+
+      // Event listener for tag input mousedown
+      tagInput.addEventListener("mousedown", handleTagInputMousedown);
+
+      // Event listener to close tag dropdown on document click
+      document.addEventListener("click", closeTagDropdown);
+
+      // Event listener for the clear button
+      clearButton.addEventListener("click", () => {
+        // Clear all tags and hide the error message
+        while (badgeContainer.firstChild) {
+          badgeContainer.removeChild(badgeContainer.firstChild);
+        }
+        tags = [];
+        hideErrorMessage();
+        saveTagsToLocalStorage();
+        // localStorage.removeItem("tags"); // Clear local storage
+
+        // Clear the input field
+        tagInput.value = "";
+        bFocusDiv.style.width = "0";
+        bFocusDiv.style.left = "50%";
+      });
+
+      // Load tags from local storage on page load
+      loadTagsFromLocalStorage();
+    </script>
+  </body>
+</html>
